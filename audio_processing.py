@@ -6,20 +6,44 @@ import torch
 import torchaudio
 
 
+# Create spectrogram directly from audio
+
+def create_spectrogram_direct(audio_filepath, output_path):
+
+    audio, sr = torchaudio.load(audio_filepath)
+    audio_spectrogram = torchaudio.transforms.Spectrogram()(audio)
+    print(audio.size(0), audio.size(1))
+
+    duration = audio.size(1) * 1e-5
+    height = 3
+
+    plt.figure(figsize=(duration, height))
+    plt.axis("off")
+    plt.imshow(audio_spectrogram.log2()[0, :, :].numpy(), cmap='viridis', aspect='auto', origin='lower')
+    plt.savefig(output_path, dpi=100, format='png', bbox_inches='tight', transparent=True)
+    plt.close()
+
+
+## WINDOW METHOD
+    
 # Create spectrogram of split audio samples
 
 def create_spectrogram(audio, output_path):
 
     audio_spectrogram = torchaudio.transforms.Spectrogram()(audio)
 
-    plt.figure(figsize=(8, 3))
+    duration = audio.size(1) / audio.size(0)
+    height = 3
+    width = duration * 4
+
+    plt.figure(figsize=(width, height))
     plt.axis("off")
-    plt.imshow(audio_spectrogram.log2()[0, :, :].numpy(), cmap='viridis')
+    plt.imshow(audio_spectrogram.log2()[0, :, :].numpy(), cmap='viridis', aspect='auto', origin='lower')
     plt.savefig(output_path, dpi=200, format='png', bbox_inches='tight', transparent=True)
     plt.close()
 
 
-# Process audio samples using window method (can be of varying lengths)
+# Process audio samples (can be of varying lengths)
 
 def create_audio_samples(audio_filepath, output_path, window=30, overlap=10):
 
