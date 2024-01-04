@@ -1,19 +1,30 @@
 import torch
 import torch.nn as nn
 
-patch_size = 16
-image_patch_size = 256
-num_classes = 10
-num_channels = 1
-dim_embeddings = 256
-num_heads = 6
-mlp_dim=1024
-num_layers = 2
+from audio_processing import create_spectrogram
+from config import ModelConfig
 
+# Set parameters
+
+config = ModelConfig()
+
+PATCH_SIZE = config.patch_size
+NUM_CLASSES = config.num_classes
+NUM_CHANNELS = config.num_channels
+DIM_EMBEDDINGS = config.dim_embeddings
+NUM_HEADS = config.num_heads
+MLP_DIM = config.mlp_dim
+NUM_LAYERS = config.num_layers
+
+
+# Define model
 
 class VisionTransformer(nn.Module):
 
-    def __init__(self, image_size, patch_size=patch_size, num_classes=num_classes, num_channels=num_channels, dim_embeddings=dim_embeddings, num_layers=num_layers, num_heads=num_heads, mlp_dim=mlp_dim, dropout=0.5):
+    def __init__(self, image_size, patch_size=PATCH_SIZE, num_classes=NUM_CLASSES, 
+                 num_channels=NUM_CHANNELS, dim_embeddings=DIM_EMBEDDINGS,  num_layers=NUM_LAYERS, 
+                 num_heads=NUM_HEADS, mlp_dim=MLP_DIM, dropout=0.5):
+        
         super(VisionTransformer, self).__init__()
 
         self.num_patches_h = image_size[0] // patch_size
@@ -25,7 +36,7 @@ class VisionTransformer(nn.Module):
 
         self.transformer_encoder = nn.TransformerEncoder(nn.TransformerEncoderLayer(dim_embeddings, num_heads, mlp_dim, dropout), num_layers=num_layers)
 
-        self.classification_layer = nn.Linear(dim_embeddings, num_channels)
+        self.classification_layer = nn.Linear(dim_embeddings, num_classes)
         self.dropout = nn.Dropout(dropout)
 
     def forward(self, x):
@@ -40,21 +51,21 @@ class VisionTransformer(nn.Module):
         x = self.classification_layer(x)
 
         return x
-    
-    def average_predictions(self, x, image_patch_size):
 
-        num_patches_h = x.size(2) // image_patch_size
-        num_patches_w = x.size(3) // image_patch_size
+    
+    def average_predictions(self, x):
+
+        spectrogram_samples = create_spectrogram(x)
 
         predictions = torch.zeros(x.size(0),self.num_classes)
 
-        for i in range(num_patches_h):
-            for j in range(num_patches_w):
-                patch = x[:, :, i*patch_size:(i+1)*patch_size, j*patch_size:(j+1)*patch_size]
+        
 
-                patch_prediction = self.forward(patch)
-                predictions  = predictions + patch_prediction
+        for window_x in x:
 
-        average_predictions = predictions / (num_patches_h*num_patches_w)
+            patch_prediction = self.forward(window_x)
+            predictions  = predictions + patch_prediction
+
+        average_predictions = predictions / ()
 
         return average_predictions
