@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from audio_processing import create_spectrogram
+from audio_processing import create_audio_samples
 from config import ModelConfig
 
 # Set parameters
@@ -51,21 +51,17 @@ class VisionTransformer(nn.Module):
         x = self.classification_layer(x)
 
         return x
-
     
     def average_predictions(self, x):
 
-        spectrogram_samples = create_spectrogram(x)
+        final_predictions = []
 
-        predictions = torch.zeros(x.size(0),self.num_classes)
+        for i in range(x.shape[0]):
+            spectrogram_samples = create_audio_samples(x[i, :])
+            predictions = []
+            for j in range(len(spectrogram_samples)):
+                predictions.append(self.forward(spectrogram_samples[j]))
 
+            final_predictions.append(torch.mean(torch.stack(predictions), dim=0))
         
-
-        for window_x in x:
-
-            patch_prediction = self.forward(window_x)
-            predictions  = predictions + patch_prediction
-
-        average_predictions = predictions / ()
-
-        return average_predictions
+        return torch.mean(torch.stack(final_predictions), dim=0)

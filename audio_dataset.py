@@ -2,9 +2,12 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 
+
+# Load dataset from filepaths provided
+
 class AudioDataset(Dataset):
     def __init__(self, npy_filepaths):
-        
+
         self.audio_data = [np.load(filepath) for filepath in npy_filepaths]
         self.audio_data = np.concatenate(self.audio_data)
         self.num_samples = self.audio_data.shape[0]
