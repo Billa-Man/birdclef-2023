@@ -13,3 +13,4 @@ class ModelConfig:
         # ViT Hyperparameters
         self.learning_rate = 0.005
         self.weight_decay = 1e-5
+        self.num_epochs = 30

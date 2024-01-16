@@ -8,6 +8,7 @@ def train_and_eval(model, criterion, optimizer, NUM_EPOCHS, device, train_datalo
 
     train_loss = []
     val_loss = []
+    cMAP_epoch = []
 
     for i in range(NUM_EPOCHS):
         
@@ -16,6 +17,7 @@ def train_and_eval(model, criterion, optimizer, NUM_EPOCHS, device, train_datalo
         train_running_loss = 0.0
         
         for inputs, targets in tqdm(train_dataloader):
+
             inputs, targets = inputs.to(device), targets.to(device)
             inputs = inputs.float()
             targets = targets.float()
@@ -29,11 +31,14 @@ def train_and_eval(model, criterion, optimizer, NUM_EPOCHS, device, train_datalo
             
             train_running_loss += loss.item()
             
+            
         # Validation
         model.eval()
         val_running_loss = 0.0
+        cMAP_val = []
         
         for inputs, targets in val_dataloader:
+
             inputs, targets = inputs.to(device), targets.to(device)
             inputs = inputs.float()
             targets = targets.float()
@@ -43,22 +48,20 @@ def train_and_eval(model, criterion, optimizer, NUM_EPOCHS, device, train_datalo
             loss = criterion(outputs, targets)
             
             val_running_loss += loss.item()
-            
-            # Insert relevant metric here
 
-            # for batch_idx in range(len(outputs)):
-            #     dice = dice_coefficient(outputs[batch_idx], targets[batch_idx])
-            #     jaccard = jaccard_index(outputs[batch_idx], targets[batch_idx])
-            #     dice_scores.append(dice.item())
-            #     jaccard_scores.append(jaccard.item())
+            for batch_idx in range(len(outputs)):
+                cMAP_batch = cMAP(outputs[batch_idx], targets[batch_idx])
+                cMAP_val.append(cMAP_batch.item())
+
                 
-            
         train_running_loss /= len(train_dataloader)
         val_running_loss /= len(val_dataloader)
+        avg_cMAP = sum(cMAP_val) / len(cMAP_val)
         
         train_loss.append(train_running_loss)
         val_loss.append(val_running_loss)
+        cMAP_epoch.append(avg_cMAP)
             
-        print(f"Epoch: {i+1}/{NUM_EPOCHS} | Training Loss: {train_running_loss:.5f} | Validation Loss: {val_running_loss:.5f}")
+        print(f"Epoch: {i+1}/{NUM_EPOCHS} | Training Loss: {train_running_loss:.5f} | Validation Loss: {val_running_loss:.5f} | cMAP: {avg_cMAP:.5f}")
 
-    return train_loss, val_loss
+    return train_loss, val_loss, cMAP_epoch

@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from audio_processing import create_audio_samples
+from functions import create_audio_samples
 from config import ModelConfig
 
 # Set parameters
@@ -64,4 +64,4 @@ class VisionTransformer(nn.Module):
 
             final_predictions.append(torch.mean(torch.stack(predictions), dim=0))
         
-        return torch.mean(torch.stack(final_predictions), dim=0)
+        return torch.stack(final_predictions)

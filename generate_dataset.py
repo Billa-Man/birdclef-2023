@@ -2,8 +2,6 @@ import os
 import numpy as np
 import torchaudio
 
-from audio_processing import *
-
 source_dir = "birdclef-2023/train_audio"
 dest_dir = "birdclef-2023/train_waveforms"
 
