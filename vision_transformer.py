@@ -4,26 +4,16 @@ import torch.nn as nn
 from functions import create_audio_samples
 from config import ModelConfig
 
-# Set parameters
-
+# Initialize config file
 config = ModelConfig()
-
-PATCH_SIZE = config.patch_size
-NUM_CLASSES = config.num_classes
-NUM_CHANNELS = config.num_channels
-DIM_EMBEDDINGS = config.dim_embeddings
-NUM_HEADS = config.num_heads
-MLP_DIM = config.mlp_dim
-NUM_LAYERS = config.num_layers
-
 
 # Define model
 
 class VisionTransformer(nn.Module):
 
-    def __init__(self, image_size, patch_size=PATCH_SIZE, num_classes=NUM_CLASSES, 
-                 num_channels=NUM_CHANNELS, dim_embeddings=DIM_EMBEDDINGS,  num_layers=NUM_LAYERS, 
-                 num_heads=NUM_HEADS, mlp_dim=MLP_DIM, dropout=0.5):
+    def __init__(self, image_size, patch_size=config.patch_size, num_classes=config.num_classes, 
+                 num_channels=config.num_channels, dim_embeddings=config.dim_embeddings,  num_layers=config.num_layers, 
+                 num_heads=config.num_heads, mlp_dim=config.mlp_dim, dropout=0.5):
         
         super(VisionTransformer, self).__init__()
 
